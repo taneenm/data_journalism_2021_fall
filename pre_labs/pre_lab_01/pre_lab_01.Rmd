@@ -34,7 +34,7 @@ There is no code to run from Chapter 1.
 
 ### Task 1: The console
 **Task** In the console (look below), type 2+2 and hit enter. What does it return? Type your answer below.
-**Answer:**
+**Answer:** [1] 4
 
 ### Task 2: Variables
 **Task** Put the following code -- which stores the numeral 2 as a variable called number -- in the console and hit enter.    
@@ -51,7 +51,7 @@ number * number
 
 What does it return? Type your answer below:
 
-**Answer:**
+**Answer:** [1] 4
 
 ### Task 3: Install packages
 **Task** In the console, run the following code to install the Tidyverse:
