@@ -78,7 +78,7 @@ wv_ppp_loans %>%
   summarise(
     count_loans = n()
   ) %>%
-  arrange(desc(count_loans))
+  arrange(count_loans)
 # Write the code to produce your answer here
 
 ```
