@@ -94,6 +94,7 @@ ppp_maryland_loans <- read_rds("pre_lab_01.rds")
 Once it loads, look at the environment window at right in RStudio for ppp_maryland_loans. It's next to a small blue circle with a white arrow in it.  To the right of that, look at how many "obs" the dataset has ("obs" is short for observation, which is another way of saying rows or records). Look at how many variables it has (another way of saying columns or fields).  Write the number of observations and variables below.
 
 **Answer**
+195856 observations and 63 variables.
 
 ### Task 3: Glimpse data
 **Task** Run the following codeblock to use glimpse() to get a sense of the data, some of the values in each field/variable/column, and the data types of each field/variable/column.
@@ -104,6 +105,7 @@ glimpse(ppp_maryland_loans)
 
 In the space below, write the data type for the "name" column and the "amount" column (it's in light gray, offset by < >).  Also offer your best guess as to what the "name" column and the "amount" column represent.
 **Answer**
+"Name" column is <chr> and "amount" column is <dbl>. I am not sure but I think chr represents changes, maybe, and dbl represents double. 
 
 ### Task 4: Examine data "head"
 **Task** Run the following codeblock to use head() to examine the first six rows of data. Explore the data by clicking the black arrow on the right side of the output table, allowing you to examine additional columns.
@@ -112,6 +114,7 @@ head(ppp_maryland_loans)
 ```
 In the space below, write the name of the business from the first row of the "name" column.
 **Answer**
+Tarbiyah Academy Inc.
 
 ### Task 5: Explore data with interactive dataframe
 **Task** look at the environment window at right in RStudio for ppp_maryland_loans. It's next to a small blue circle with a white arrow in it. Click on the ppp_maryland_loans -- not the blue circle. It will open the dataframe as an interactive table.  Scroll down to see additional rows.  Scroll left to see additional columns. Click on a column name to sort by that column.
@@ -128,6 +131,7 @@ ppp_maryland_loans %>%
 ```
 How many loans does Anne Arundel County have?  Put your answer in the space below.
 **Answer**
+17336
 
 ### Task 7
 **Task** Run the following codeblock to group the ppp_maryland_loans dataframe by the county for each loan, count the number of loans in that group, and then sort so the county with the highest number of loans is listed first.
@@ -141,6 +145,7 @@ ppp_maryland_loans %>%
 ```
 Which county has the most loans?  Put your answer in the space below.
 **Answer**
+Montgomery County
 
 ### Task 8
 **Task** Run the following codeblock to group the ppp_maryland_loans dataframe by county and race, then count the number of loans in that group, and then sort from A-Z by county and then by race.
@@ -155,7 +160,7 @@ ppp_maryland_loans %>%
 
 How many records were there for White loans in Anne Arundel County, according to the data?  Put your answer in the space below.
 **Answer**
-
+There were 1854 records for white loans.
 ### Task 9
 **Task** Run the following codeblock to group the ppp_maryland_loans dataframe by the county for each loan, and then count the number of loans in that group and add up the value of all loans in that group. Then sort so the county with the highest total loan dollar amount is listed first.
 ```{r}
@@ -169,6 +174,7 @@ ppp_maryland_loans %>%
 ```
 Which county has the highest total dollar amount of loans?  Put your answer in the space below.
 **Answer**
+Montgomery County.
 
 ### Task 10
 **Task** Run the following codeblock to group the ppp_maryland_loans dataframe by the county for each loan. Then do the following summarizations for each group:count the number of loans , add up the value of all loans, and calculate the mean and median loan amounts. Then sort so the county with the highest mean dollar amount is listed first.
@@ -185,6 +191,7 @@ ppp_maryland_loans %>%
 ```
 Which county has the highest mean loan amount?  Put your answer in the space below.
 **Answer**
+Howard County has the highest mean loan.
 ### Task 11
 **Task** Run the following codeblock to group the ppp_maryland_loans dataframe by the county for each loan. Then do the following summarizations for each group:count the number of loans, add up the value of all loans, calculate the mean and median loan amounts and calculate the smallest and largest loans. Then sort so the county with the largest max loan amount is listed first.
 ```{r}
@@ -202,6 +209,7 @@ ppp_maryland_loans %>%
 ```
 Which is the max loan amount in Anne Arundel County?  Put your answer in the space below.
 **Answer**
+The max loan was 10000000.
 
 ### Task 12
 **Task** Sort the entire dataset so that the biggest loans appear first, allowing you to see which companies got the biggest loans.
@@ -212,3 +220,4 @@ ppp_maryland_loans %>%
 ```
 How many companies got $10 million loans? One of them is a restaurant chain.  What kind of food do they serve? Put your answers in the space below.
 **Answer**
+Five counties got $10 million loans. Mission BBQ is the restaurant chain; they serve barbecued meats. 
