@@ -47,11 +47,21 @@ west_virginia_ppp <- read_rds("lab_02.rds")
 ## Answer questions
 
 **Q1** Create a new column that divides the loan amounts into multiple options: under_10k, 10k_50k, 50k_100k, 100k_500k, 500k_1m, 1m_plus. How many loans are in each group?
-**A1** [write your answer here]
+**A1** [under_10k: 9301, 10k-50k: 15275, 50k_100k: 3947, 100k_500k: 4131, 500k_1m: 539, 1m_plus: 356]
 
 ```{r}
 # Write the code to produce your answer here
-
+west_virginia_with_in_out <- west_virginia_ppp %>%
+  mutate( 
+    amount_category = case_when(
+      amount < 10000~'under_10000',
+      amount > 10000 & amount < 50000~'10000_50000',
+      amount > 50000 & amount < 100000~'50000_100000',
+      amount > 100000 & amount < 500000~'100000_500000',
+      amount > 500000 & amount < 1000000~'500000_1000000',
+      amount > 1000000~'over_1000000'
+    )
+ )
 ```
 
 **Q2** Which servicing lenders have the most loans with undisbursed amounts greater than 0?
