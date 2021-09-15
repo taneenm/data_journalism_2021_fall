@@ -245,7 +245,7 @@ arnold_md_loans
 ### Task 6: Use clean_names()
 **Task** Run the following codeblock to use the clean_names() function from janitor to standardize column names. How does the function change the name of the column "1_id"? Answer below.
 **Answer**
-
+It changes the name from 1_id to x1_id. 
 
 ```{r}
 # cleaning function
