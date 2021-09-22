@@ -164,6 +164,7 @@ maryland_ppp_with_naics_and_demographics %>%
 **Task** Find the number of PPP loans that went to ZCTAs with more than 50% non-Hispanic Black population, grouped by rural or urban status, and calculate the average and median amounts for those loans. Put your answers below.
 **Answer** The amount for rural is 148. The average amount of those loans is 44328.87, and the median is 19621. For urban the number is 43884. The average amount is 53868.53, and the median amount is 20000.
 
+
 ```{r}
 # zcta with > 50% non-Hispanic Black population grouped by rural/urban
 maryland_ppp_with_naics_and_demographics %>%
