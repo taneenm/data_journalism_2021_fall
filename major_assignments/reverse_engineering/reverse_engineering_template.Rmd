@@ -18,15 +18,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction 
 
-In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
+In this notebook, we are reverse engineering the story, [Nearly 250 women have been fatally shot by police since 2015] (https://www.washingtonpost.com/graphics/2020/investigations/police-shootings-women/)
+
 
 ## Load libraries
 
 Loading required libraries for this analysis.
 
 ```{r echo=FALSE, message=FALSE}
+#turn off scientific notation
+options(scipen=999)
+#load tidyverse
+library(tidyverse)
+#load lubridate 
+library(lubridate)
+#load refinr
+library(refinr)
 
 ```
+
 
 ## Load and Cleaning Data
 
@@ -36,8 +46,18 @@ In this section, describe the source of the data, write a basic data dictionary 
 # Load required data
 
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
+fatal_police_shootings<- read_csv("data/fatal-police-shootings-data.csv")
 
 # Clean required data and prepare for analysis if needed. 
+#counts rows to get total number of fatal shootings
+total_fatal_shootings <- fatal_police_shootings %>% 
+  nrow()
+#filters and counts to get number of Black women fatally shot
+total_black_women_shot <- fatal_police_shootings %>% 
+  filter(gender == "F" & race == "B") %>% 
+  summarise(
+      total_black_women_shot = sum(n()
+  ))
 
 
 ```
@@ -47,11 +67,48 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 1
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Sentence text**: [“Since 2015, Black women have accounted for less than 1 percent of the overall fatal shootings in cases where race was known. But within this small subset, Black women, who are 13 percent of the female population, account for 20 percent of the women shot and killed and 28 percent of the unarmed deaths.”]
+* **Analysis summary**: [I was able to confirm the finding for the first part of the sentence, which stated that black women accounted for less than 1 percent of overall fatal shootings. However, when I calculated the remaining two parts of the sentence, I couldn't confirm the finding. The sentence states that black women account for 20% of women shot, but I got 18%. The more troubling of the two not confirmed was the last part. My work found that 12.6% of all unarmed deaths were black women, but the sentence states they account for 28%. My only explanation at this point would be that they included the "undetermined" entires in the unnarmed category as well.]
 
 ```{r}
 # Put code to reverse engineer sentence here
+fatal_police_shootings %>% 
+  group_by(gender, race) %>% 
+  summarise(number = n()) %>% 
+  ungroup() %>% 
+  mutate(total = sum(number)) %>% 
+  mutate(percent = (number/total)*100) %>% View()
+
+#(part 1)Black women have accounted for less than 1 percent of the overall fatal shootings
+
+total_black_women_shot_percentage = (total_black_women_shot/total_fatal_shootings)*100
+total_black_women_shot_percentage
+```
+
+
+```{r}
+# Put code to reverse engineer sentence here
+
+# (part 2) Black women, who are 13 percent of the female population, account for 20 percent of the women shot
+total_women_shot = fatal_police_shootings %>% 
+   #total women shot
+  filter(gender == "F") %>% nrow()
+  #divide black women by total women shot
+  black_women_out_of_women_shot = (total_black_women_shot/total_women_shot)*100
+# Display results of code below this codeblock
+   black_women_out_of_women_shot
+```
+
+```{r}
+
+# (part 3) Black women account for 28 percent of the unarmed deaths.
+total_unarmed = fatal_police_shootings %>% 
+   #total women shot
+  filter(armed == "unarmed") %>% nrow()
+  #divide black women by total unarmed
+  black_women_out_of_unarmed = (total_black_women_shot/total_unarmed)*100
+# Display results of code below this codeblock
+   black_women_out_of_unarmed 
 
 # Display results of code below this codeblock
 
@@ -59,7 +116,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 2
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: [“About 31 percent, or 77, of the 247 women fatally shot by police since 2015 had mental health issues, compared to 22 percent of the 5,362 men killed.”]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -69,13 +126,23 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ```
 
-### Sentence 3
+### Sentence 3  
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Sentence text**: [“Crenshaw said Black women’s deaths also may be dismissed as “collateral damage” if they are killed while police are pursuing someone else. Twenty of the 247 women were killed in that kind of situation, analysis shows. In 12 of those 20 shootings, police said the women killed were caught in crossfire or shot accidentally.”]
+* **Analysis summary**: [I was sort of able to confirm the finding. The Washington Post didn't define what they meant as collateral in the data. So I guessed that the columns they used for this part were “armed” and “flee.” I was able to get 20 women from counting “unarmed” and “not fleeing/NA.” I am not confident that that is the same way WaPo got their number.
+For the second part where they said 12 out of 20 were accidents, I am not sure what variables they used to get that answer, so I was not able to confirm that piece.]
 
 ```{r}
 # Put code to reverse engineer sentence here
+unarmed_women<-fatal_police_shootings %>% 
+  filter (gender=="F" & armed=="unarmed")
+#(part 1) 20/247 women were killed as collateral damage
+unarmed_women%>%
+  group_by(flee)%>%
+   summarise(number = n()) 
+
+#(part 2) 12/20 were shot in crossfire or accidentally shot
+  #honestly not sure how they got this from the data
 
 # Display results of code below this codeblock
 
@@ -83,11 +150,28 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 4
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Sentence text**: ["Since 2015, police have killed 26 unarmed women, including Taylor. Of those, 14 were White, seven were Black, four were Hispanic and one’s race was unknown. While about twice as many White women were shot and killed as Black women, White women account for five times the Black female population"]
+* **Analysis summary**: [For the first part, my result was that police killed 28 unarmed women. The second part I found that there were 15 White women and 5 Hispanic women instead.]
 
 ```{r}
 # Put code to reverse engineer sentence here
+#Since 2015, police have killed 26 unarmed women.
+fatal_police_shootings%>%
+  filter(gender=="F", armed=="unarmed")
+
+#14 were White, seven were Black, four were Hispanic and one’s race was unknown
+white_unarmed_women<-fatal_police_shootings%>%
+  filter(gender=="F", armed=="unarmed", race=="W")%>%
+  summarise(count = n())
+
+black_unarmed_women<-fatal_police_shootings%>%
+  filter(gender=="F", armed=="unarmed", race=="B")%>%
+  summarise(count = n())
+
+hispanic_unarmed_women<-fatal_police_shootings%>%
+  filter(gender=="F", armed=="unarmed", race=="H")%>%
+  summarise(count = n())
+
 
 # Display results of code below this codeblock
 
