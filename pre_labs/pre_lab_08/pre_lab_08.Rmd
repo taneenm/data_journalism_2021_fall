@@ -220,7 +220,7 @@ top_zips <- maryland_ppp %>%
 ```
 
 **Task** Let's get ZCTA household income data from the ACS using tidycensus for the top zip code in `top_zips`. Run the following codeblock to retrieve household income data for all Maryland ZCTAs first, then join them to `top_zips` using the GEOID column. Of the 20 zip codes with the largest amounts, which ones have estimated median household incomes of less than $50,000?
-**Answer** 3 zip codes have less than 50,000
+**Answer** 3 zip codes have median incomes less than $50,000: 21202, 21740, and 21201
 
 ```{r}
 md_zipcodes <- get_acs(geography="zcta", variables = "B19013_001", state='MD')
