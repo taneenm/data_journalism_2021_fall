@@ -1,0 +1,160 @@
+---
+title: "lab_09"
+author: "sean mussenden"
+date: "8/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## You will need
+
+* A Census API key
+
+## Load libraries and establish settings
+
+**Task** Create a codeblock and load appropriate packages and settings for this lab.
+
+## Questions
+```{r}
+options(scipen=999)
+library(tidyverse)
+library(tidycensus)
+library(ggthemes)
+wv_ppp_loans<-read_rds("data/lab_09.rds")
+```
+
+**Q1.** Which day in April 2020 saw the most loans approved in West Virginia? 
+
+You MUST do the following things when answering this question:
+* Use the WV ppp loan data, which is in the data folder and is called lab_09.rds.
+* Make a line chart with ggplot that:
+  * has each date in April (i.e. 04-01-20, 04-02-20) labeled on the x axis (and only dates in April, no other month). To clarify, no data for any other month than April 2020 should appear on the chart. 
+  * sets the height of the line for any given date -- its y axis value -- to the total number of loans on that date.
+  * has an appropriate title, source, and x and y axis titles. 
+  * adds a small circle (called a "point") on the line for dates that had loans. And to the left of each circle/point, shows the number of loans on that date.  I didn't show you how to do this in the prelab, so do some web sleuthing to figure it out! 
+
+Basically, your chart should look like this image, which will appear when you run the codeblock below. 
+
+```{r}
+knitr::include_graphics(rep("images/chart_1.png"))
+```
+**A1.**
+  The date that saw the most approved loans is April 28, 2020.
+
+```{r}
+#making da dataframe
+wv_loans_april<-wv_ppp_loans%>%
+  group_by(date_approved)%>%
+  summarise (
+    total_loans=n()
+  )%>%
+  filter(date_approved<="2020-04-30")
+
+wv_loans_april
+
+#line
+wv_loans_april%>%
+    ggplot() + 
+  geom_line(aes(x=date_approved, y=total_loans)) +
+  scale_x_date(date_breaks = "1 day",date_labels = "%m-%d-%y") +
+  theme(
+    axis.text.x = element_text(angle = 45,  hjust=1)
+  ) +
+  geom_point(aes(x=date_approved, y=total_loans)) + 
+  geom_text(aes(label=total_loans, x=date_approved,y=total_loans),hjust=1.3, vjust=1) +
+  labs(title="Approved West Virginian Loans in April 2020",
+       x = "Date",
+       y = "Number of Loans",
+       caption = "Source: SBA PPP loan database")
+
+```
+**Q2.** What are the top 10 states that got the most PPP loans per 100,000 people? You MUST do the following things when answering this question:
+
+* Make a codeblock below to write your code in.
+* Use the csv of total PPP loans by state in the data folder (state_ppp_all) as your source for total PPP loans by state.  
+* Use the tidycensus API to get a table of total population by state from the American Community Survey (ACS). To do this, you'll use use the alphanumeric variable for total population, which has the following "label" and "concept": "Estimate!!Total:" and "SEX BY AGE".  
+* Use ggplot to make a horizontal bar chart that shows the top 10 states, with the length of the bar determined by the state's total PPP loans per 100,000 people. Give it an appropriate title, source, and x and y axis titles. 
+* Make the bars on the chart blue! I didn't show you how to do this in the prelab, so do some web sleuthing to figure it out.  
+
+**A2.** Top 10 states: South Dakota, North Dakota, Nebraska, Georgia, Iowa, Illinois, Louisiana, Florida, Mississippi, Montana. 
+
+```{r}
+state_ppp_all<-read_csv("data/state_ppp_all.csv")
+census_api_key("dce78b11de43007eaba2a37f3d725ebcfc920857")
+acs5 <-load_variables(2019, "acs5", cache = TRUE)
+```
+
+```{r}
+#acs data
+state_pop<- get_acs(geography = "state",
+              variables = c(pop = "B01001_001"),
+              year = 2019)%>%
+            rename(state=NAME)%>%
+             mutate(state = case_when(
+    state == "North Dakota" ~ "N Dakota",
+     state == "South Dakota" ~ "S Dakota",
+    TRUE ~ state
+  ))
+
+#joining acs and ppp 
+state_join<-state_pop %>%
+  inner_join(state_ppp_all, by=c("state"))%>%
+  select(-moe,-variable,-GEOID)%>%
+  rename(population=estimate)%>%
+  mutate(
+    per_100k=(total_ppp_loans/population)*100000
+  )%>%
+  arrange(desc(per_100k))%>%
+  head(10)
+
+#bar
+state_join %>%
+  ggplot() +
+   geom_bar(aes(x=reorder(state,per_100k), weight=per_100k,), fill="#89CFF0") +
+  coord_flip()+
+  labs(title="Top 10 States with Highest PPP Loan Approval per 100,000 People",
+       x = "States",
+       y = "Loans Approves",
+       caption = "Source: SBA PPP loan database and ACS Census Data")
+
+  
+```
+
+**Q3.**  A scatterplot is a type of chart that helps us see relationships between two variables. One variable goes on the x axis, the other on the y axis.  For each row/observation in our data, a scatterplot puts a circle (or a "point") where the two variables intersect on a grid. 
+
+Statisticians use scatterplots to show graphically whether one variable is correlated -- related, in a statistical sense -- with another variable.  A classic example is the [relationship between ice cream sales and temperature](https://www.mathsisfun.com/data/scatter-xy-plots.html).  The scatterplot below (press play to load the image) shows that relationship, that an increase in temperature is associated with an increase in ice cream sales. When it's 12C, sales are 200 dollars, and when it's hotter, 25C, sales are 600 dollars.
+
+```{r}
+knitr::include_graphics(rep("images/chart_2.png"))
+```
+
+We're going to use a scatterplot a little differently, to get a visual sense of two key variables: the amount of an approved PPP loan, and the amount that was later forgiven. We'll use it to answer some questions in a broad sense, about loan forgiveness.  This is just a jumping off point for further exploration. 
+
+Our questions include: Were there a lot of people who had their loans fully forgiven?  Were there a lot of people who didn't have their loans forgiven? Were there a lot of people who had some of the loan forgiven? 
+
+To answer those questions, make a codeblock and do the following:
+
+1. Start with the a subset of the WV ppp loan data we loaded earlier.
+2. Filter the data to examine only those loans less than $25,000.
+3. There are a bunch of NAs in the forgiveness amount column, for the purposes of this assignment only, let's assume those are actually supposed to be 0. So make all the NAs 0. 
+4. Make a scatterplot. I didn't show you how to do this, so look it up! 
+5. In the answer space below, describe what you see and answer the questions posed above.  In a general sense, what do you think this means?  
+
+**A3.** Based on the line-shape going diagonally in the middle of the scatterplot, it seems like many people had their loans forgiven. The same can also be said for people who did not get their loans forgiven because of that darker line at the bottom of the scatterplot. It seems like only a fraction of the people who applied had their loans partially forgiven. I think this means that it is more common to get your loan forgiveness fully approved or fully denied than it is to get partial forgiveness.   
+```{r}
+wv_less<-wv_ppp_loans%>%
+  filter(amount<=25000)%>%
+  mutate(forgiveness_amount = case_when(
+    is.na(forgiveness_amount) ~ 0,
+    TRUE ~ forgiveness_amount
+  ))
+
+#scatterplot
+  ggplot(wv_less, aes(x=amount, y=forgiveness_amount)) + geom_point()
+
+```
+
+-30-
