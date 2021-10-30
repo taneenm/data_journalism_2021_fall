@@ -1,7 +1,7 @@
 ---
 title: "Reverse Engineering Project"
-author: "Student names here"
-date: "Date here"
+author: Jenna Cohen, Taneen Momeni, Max Boyarsky and Jamie Pinzon
+date: 10/9/2021
 output:
   html_document:
     theme: cerulean
@@ -18,8 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction 
 
-In this notebook, we are reverse engineering the story, [Nearly 250 women have been fatally shot by police since 2015] (https://www.washingtonpost.com/graphics/2020/investigations/police-shootings-women/)
-
+In this notebook, we are reverse engineering the story, [Nearly 250 women have been fatally shot by police since 2015] (https://www.washingtonpost.com/graphics/2020/investigations/police-shootings-women/ )
 
 ## Load libraries
 
@@ -37,27 +36,29 @@ library(refinr)
 
 ```
 
-
 ## Load and Cleaning Data
 
 In this section, describe the source of the data, write a basic data dictionary for data you are working with, and discuss any caveats or issues you discovered working with this data. 
 
 ```{r}
 # Load required data
-
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
+
 fatal_police_shootings<- read_csv("data/fatal-police-shootings-data.csv")
 
 # Clean required data and prepare for analysis if needed. 
+
 #counts rows to get total number of fatal shootings
 total_fatal_shootings <- fatal_police_shootings %>% 
   nrow()
+
 #filters and counts to get number of Black women fatally shot
-total_black_women_shot <- fatal_police_shootings %>% 
-  filter(gender == "F" & race == "B") %>% 
-  summarise(
-      total_black_women_shot = sum(n()
-  ))
+total_black_women_shot <- fatal_police_shootings %>% filter(gender == "F" & race == "B") %>% nrow()
+
+#filters and counts to get number of fatal shootings where race is known
+race_known <- fatal_police_shootings %>% filter(!is.na(race)) %>% nrow() 
+
+
 
 
 ```
@@ -68,23 +69,18 @@ In this notebook, we are reverse engineering five sentences from the story.
 ### Sentence 1
 
 * **Sentence text**: [“Since 2015, Black women have accounted for less than 1 percent of the overall fatal shootings in cases where race was known. But within this small subset, Black women, who are 13 percent of the female population, account for 20 percent of the women shot and killed and 28 percent of the unarmed deaths.”]
-* **Analysis summary**: [I was able to confirm the finding for the first part of the sentence, which stated that black women accounted for less than 1 percent of overall fatal shootings. However, when I calculated the remaining two parts of the sentence, I couldn't confirm the finding. The sentence states that black women account for 20% of women shot, but I got 18%. The more troubling of the two not confirmed was the last part. My work found that 12.6% of all unarmed deaths were black women, but the sentence states they account for 28%. My only explanation at this point would be that they included the "undetermined" entires in the unnarmed category as well.]
+* **Analysis summary**: [I was able to confirm the finding for the first part of the sentence, which stated that black women accounted for less than 1 percent of overall fatal shootings. However, when I calculated the remaining two parts of the sentence, I couldn't confirm the finding. The sentence states that black women account for 20% of women shot, but I got 18%. The more troubling of the two not confirmed was the last part. My work found that 12.6% of all unarmed deaths were black women, but the sentence states they account for 28%. A possible explanation would be that they included the "undetermined" entries in the unnamed category as well. Another possible explanation is because the story was published in Sept of 2020, and the data base was most recently updated in Sept. 2021. The trends in the data are relatively similar, but I believe that's why I cannot replicate their findings exactly.]
+
 
 ```{r}
 # Put code to reverse engineer sentence here
-fatal_police_shootings %>% 
-  group_by(gender, race) %>% 
-  summarise(number = n()) %>% 
-  ungroup() %>% 
-  mutate(total = sum(number)) %>% 
-  mutate(percent = (number/total)*100) %>% View()
-
 #(part 1)Black women have accounted for less than 1 percent of the overall fatal shootings
 
-total_black_women_shot_percentage = (total_black_women_shot/total_fatal_shootings)*100
+total_black_women_shot_percentage = (total_black_women_shot/race_known)*100
 total_black_women_shot_percentage
-```
 
+# Display results of code below this codeblock
+```
 
 ```{r}
 # Put code to reverse engineer sentence here
@@ -100,6 +96,7 @@ total_women_shot = fatal_police_shootings %>%
 ```
 
 ```{r}
+# Put code to reverse engineer sentence here
 
 # (part 3) Black women account for 28 percent of the unarmed deaths.
 total_unarmed = fatal_police_shootings %>% 
@@ -109,49 +106,101 @@ total_unarmed = fatal_police_shootings %>%
   black_women_out_of_unarmed = (total_black_women_shot/total_unarmed)*100
 # Display results of code below this codeblock
    black_women_out_of_unarmed 
-
-# Display results of code below this codeblock
-
 ```
 
 ### Sentence 2
 
 * **Sentence text**: [“About 31 percent, or 77, of the 247 women fatally shot by police since 2015 had mental health issues, compared to 22 percent of the 5,362 men killed.”]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?] My entire analysis is a bit off from the data listed in the sentence. I believe that is because the story was published in Sept of 2020, and the database was most recently updated in Sept. 2021. The trends in the data are relatively similar, but I believe that's why I cannot replicate their findings exactly. 
 
 ```{r}
 # Put code to reverse engineer sentence here
 
+#create new df of women shot
+women_df <- fatal_police_shootings %>% 
+  filter(gender=="F")
+#count rows
+  nrow(women_df)
+  #294 women
+#filter for signs_of_mental_illness
+women_mental_illness<-  women_df %>% 
+  filter(signs_of_mental_illness=="TRUE")
+#count rows 
+  nrow(women_mental_illness)
+  #95 women with mental illness
+#divide women by signs of mental illness and *100
+(95/294)*100
+  #32.3% 
+    
+#create new df of men shot
+men_df <- fatal_police_shootings %>% 
+  filter(gender=="M")
+#count rows
+  nrow(men_df)
+  # 6303 men
+#filter for signs_of_mental_illness
+men_mental_illness<-  men_df %>% 
+  filter(signs_of_mental_illness=="TRUE")
+#count rows 
+  nrow(men_mental_illness)
+  #1399 men with mental illness
+#divide men by signs of mental illness and *100
+  (1399/6303)*100
+  #22.2%
 # Display results of code below this codeblock
-
 ```
 
-### Sentence 3  
 
-* **Sentence text**: [“Crenshaw said Black women’s deaths also may be dismissed as “collateral damage” if they are killed while police are pursuing someone else. Twenty of the 247 women were killed in that kind of situation, analysis shows. In 12 of those 20 shootings, police said the women killed were caught in crossfire or shot accidentally.”]
-* **Analysis summary**: [I was sort of able to confirm the finding. The Washington Post didn't define what they meant as collateral in the data. So I guessed that the columns they used for this part were “armed” and “flee.” I was able to get 20 women from counting “unarmed” and “not fleeing/NA.” I am not confident that that is the same way WaPo got their number.
-For the second part where they said 12 out of 20 were accidents, I am not sure what variables they used to get that answer, so I was not able to confirm that piece.]
+### Sentence 3
+
+* **Sentence text**: [“As with fatal police shootings of men, the vast majority of the women killed were armed with a potential weapon at the time, although slightly less often: 89 percent of the women were armed, compared to 91 percent of the men.”]
+^new sentence
+* **Analysis summary**: [I think I was able to confirm the findings. It was unclear what the Washington Post meant by "undetermined" in the armed column. If "undetermined" meant that the weapon on the person was undetermined (and not that it meant it was undetermined if the person shot had a weapon), then the percentages that came out of that were close to what the Post said. So, the Post most likely thought that undetermined meant armed. When considering "undetermined" as being unarmed, then the percentages are off by a few percentage points.] 
 
 ```{r}
 # Put code to reverse engineer sentence here
-unarmed_women<-fatal_police_shootings %>% 
-  filter (gender=="F" & armed=="unarmed")
-#(part 1) 20/247 women were killed as collateral damage
-unarmed_women%>%
-  group_by(flee)%>%
-   summarise(number = n()) 
+#Each gender is run twice- one including the undetermined number count as armed and one counting undetermined as unarmed. 
 
-#(part 2) 12/20 were shot in crossfire or accidentally shot
-  #honestly not sure how they got this from the data
-
-# Display results of code below this codeblock
+#89 percent of women were armed (with undetermined considered armed)
+fatal_police_shootings%>%
+  filter(gender=="F" & armed != "unarmed")%>%
+  summarise(
+    count = n(),
+    percent_women_armed= (count/total_women_shot)*100
+  ) 
+#89 percent of women were armed (with undetermined considered unarmed)
+fatal_police_shootings%>%
+  filter(gender=="F" & armed != "unarmed" & armed != "undetermined")%>%
+  summarise(
+    count = n(),
+    percent_women_armed_without_undet= (count/total_women_shot)*100
+  ) 
+#filters and counts men fatally shot
+  total_men_shot <- fatal_police_shootings %>% filter(gender == "M") %>% nrow()
+#91 percent of men were armed (with undetermined considered armed)
+fatal_police_shootings%>%
+  filter(gender=="M" & armed != "unarmed")%>%
+  summarise(
+    count = n(),
+    percent_men_armed= (count/total_men_shot)*100
+  ) 
+#91 percent of men were armed (with undetermined considered unarmed)
+fatal_police_shootings%>%
+  filter(gender=="M" & armed != "unarmed" & armed != "undetermined")%>%
+  summarise(
+    count = n(),
+    percent_men_armed_without_undet= (count/total_men_shot)*100
+  ) 
 
 ```
+
+
+
 
 ### Sentence 4
 
-* **Sentence text**: ["Since 2015, police have killed 26 unarmed women, including Taylor. Of those, 14 were White, seven were Black, four were Hispanic and one’s race was unknown. While about twice as many White women were shot and killed as Black women, White women account for five times the Black female population"]
-* **Analysis summary**: [For the first part, my result was that police killed 28 unarmed women. The second part I found that there were 15 White women and 5 Hispanic women instead.]
+* **Sentence text**: ["Since 2015, police have killed 26 unarmed women, including Taylor. Of those, 14 were White, seven were Black, four were Hispanic and one’s race was unknown. While about twice as many White women were shot and killed as Black women, White women account for five times the Black female population."]
+* **Analysis summary**: [For the first part, my result was that police killed 28 unarmed women, not 26. The second part I found that there were 15 White women and 5 Hispanic women instead, hence 2 more people in the outcome. The differences in the result might be because the story was published in September 2020, but the data that was used was updated in September 2021, which might have added new information.]
 
 ```{r}
 # Put code to reverse engineer sentence here
@@ -171,22 +220,26 @@ black_unarmed_women<-fatal_police_shootings%>%
 hispanic_unarmed_women<-fatal_police_shootings%>%
   filter(gender=="F", armed=="unarmed", race=="H")%>%
   summarise(count = n())
-
-
+  
 # Display results of code below this codeblock
 
 ```
 
 ### Sentence 5
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Sentence text**: ["By race, 147 of the women killed were White, 48 Black and 29 Hispanic. Five were Native American, four were Asian and three were other races. In 11 cases, race could not be determined."]
+
+* **Analysis summary**: [I filtered for gender (F), grouping by race, and summarising by the number of women killed using the summarise function with the “n count.” It showed that 175 women killed were white, 53 were black, 5 were Native American, and 5 were asian. 20 cases could not be determined. This does not confirm the finding because most of the numbers are greater than the Post's numbers, which is most likely because the dataset was updated in 2021, and the Post's story was published in 2020.]
 
 ```{r}
 # Put code to reverse engineer sentence here
-
-# Display results of code below this codeblock
-
+fatal_police_shootings%>%
+  filter(gender== "F" ) %>% 
+  group_by(race) %>% 
+  summarise(
+    women_killed = n())
 ```
 
+
 -30-
+
