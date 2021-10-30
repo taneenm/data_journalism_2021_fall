@@ -154,7 +154,6 @@ men_mental_illness<-  men_df %>%
 ### Sentence 3
 
 * **Sentence text**: [“As with fatal police shootings of men, the vast majority of the women killed were armed with a potential weapon at the time, although slightly less often: 89 percent of the women were armed, compared to 91 percent of the men.”]
-^new sentence
 * **Analysis summary**: [I think I was able to confirm the findings. It was unclear what the Washington Post meant by "undetermined" in the armed column. If "undetermined" meant that the weapon on the person was undetermined (and not that it meant it was undetermined if the person shot had a weapon), then the percentages that came out of that were close to what the Post said. So, the Post most likely thought that undetermined meant armed. When considering "undetermined" as being unarmed, then the percentages are off by a few percentage points.] 
 
 ```{r}
