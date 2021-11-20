@@ -1,0 +1,21 @@
+```{r}
+
+dc<- read_csv("data/dc_comic_data.csv")
+marvel<- read_csv("data/marvel_comic_data.csv")
+
+dc<- dc %>% 
+  mutate(
+    type = "comic",
+    publisher = "dc"
+  )
+
+marvel<- marvel %>% 
+  mutate(
+    type = "comic",
+    publisher = "marvel"
+  )
+
+master_list <- marvel %>% 
+  left_join(dc, by=c('type'))
+
+```

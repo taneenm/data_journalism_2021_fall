@@ -1,0 +1,367 @@
+---
+title: "Reverse Engineering Project"
+author: Jenna Cohen, Taneen Momeni, Max Boyarsky and Jamie Pinzon
+date: 11/2021
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Core Dataset
+
+We will be using the (538 Comic Datasets) [https://github.com/fivethirtyeight/data/tree/master/comic-characters] for our analysis
+
+## Load libraries
+
+Loading required libraries for this analysis.
+
+```{r echo=FALSE, message=FALSE}
+#turn off scientific notation
+options(scipen=999)
+#load tidyverse
+library(tidyverse)
+#load janitor - clean set names
+library(janitor)
+#load lubridate - not sure if we'll need
+library(lubridate)
+#load refinr - not sure if we'll need
+library(refinr)
+#we'll add to these as we need other libs
+```
+## 250 word summary of findings thus far (for deliverable_03)
+The most interesting findings from question one is that among the marginalized identities that are in the comics so far, female characters in Marvel and DC appeared earlier than the other identities. They also align more Good/Neutral. The first Marvel agender character appears 25 years after the first female character. In general, Marvel agender characters align with bad two times more than they align with good. Lastly, DC has a 16-year gap between the first and second appearances of a not-straight character. The first appearances were a bisexual character who was bad, the next was a homosexual character who was good. For question two, the most interesting find was that 99.5% of all characters in the Marvel universe are straight. Only 90 characters in the Marvel universe are a gender/sexual minority. 99% of all characters in the DC universe are straight, with 64 characters being a gender/sexual minority. Question three is less newsworthy. There is a large NA category in all of the dataframes. Additionally, the README file provided by 538 doesn’t say what the NAs might represent. Regardless, in all but DC women, there are more characters that have secret identities than public identities among the characters that are in a marginalized group. 
+
+## Load and Cleaning Data
+Should probably mutate to add a column in each that says DC or marvel - then join? -Jenna
+
+pageid and urlslug are most likely not valuable columns in our analysis -Jenna
+
+Get rid of Na's in gsm column so it's easier to filter - Jenna
+```{r}
+
+dc<- read_csv("data/dc_comic_data.csv")
+marvel<- read_csv("data/marvel_comic_data.csv")
+
+dc<- dc %>% 
+  #mutate(
+    #type = "comic",
+    #publisher = "dc"
+  #)
+  select(-page_id, -urlslug) %>% 
+  clean_names() %>% 
+  mutate(gsm = case_when(
+    is.na(gsm) ~ "none",
+    TRUE ~ gsm
+  ))
+
+marvel<- marvel %>% 
+  #mutate(
+    #type = "comic",
+    #publisher = "marvel"
+  #)
+  select(-page_id, -urlslug) %>% 
+  clean_names()%>% 
+  mutate(gsm = case_when(
+    is.na(gsm) ~ "none",
+    TRUE ~ gsm
+  ))
+
+#tried this and it created a list of 112 million rows??? was expecting 22k -jenna 
+#master_list <- marvel %>% 
+  #left_join(dc, by=c('type'))
+
+#this isn't working either !!! -jenna
+#joined <- rbind(marvel, dc)
+
+
+```
+
+
+## Taneen
+
+Question 1: When were the first characters that had a different identities (so people who were not straight cis white men) introduced into the universe for each of the companies; what were their identities, and were they good, bad, or neutral? 
+
+This question is newsworthy because these comic books led to the production of a lot of the highest grossing movies. They have such a big impact and wide audience that range from people who actually read the books to people who watch the movies based off of the books. I think it’s interesting to know when the books started considering other identities to represent within their content, and how they chose to represent them. I think more journalistic works have asked this question for gender, but only men/women and did not include other gender identities. I think there are also some works that have asked this for racial identities as well. 
+
+```{r}
+#analysis here
+#so my plan for this is to look at the data for each company separately. categories I’m going to look at are: align, sex, GSM, and first appearance. don’t have to exclude anything for gsm b/c that category shows if the character is a sexual minority, but for sex i will exclude male
+#i just realized that the data doesn’t have anything explicitly for race which is interesting
+```
+#### Marvel
+```{r}
+#gsm. i am wondering if i should look at when each category in the gsm was introduced too? like one for homosexuals, one for bisexual, one for pansexual etc etc 
+marvel_gsm_first<-marvel_gsm%>%
+  select(name, align, gsm, first_appearance, year)%>%
+  arrange(year)
+#homosexual. dec 1940. good. 
+#next appearance: homosexual. march 1943. NA. 
+#sex
+marvel_sex<-marvel%>%
+group_by(sex) %>% 
+  summarise(
+    sex_count = n()
+  )
+#not male
+marvel_nonmale_first<-marvel%>%
+  filter(sex!="Male Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year) 
+#two oct 1939. both female. one neutral one good.
+#next appearance: female. dec 1939. neutral.
+
+#female
+marvel_female_first<-marvel%>%
+  filter(sex=="Female Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#two oct 1939. one neutral one good.
+#next appearance: female. dec 1939. neutral.
+
+#agender
+marvel_agender_first<-marvel%>%
+  filter(sex=="Agender Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#jan 1964. neutral
+#next appearance: sep 1966. bad. doesn't have a good agender character until 1979 and immediately goes back to neutral/bad
+
+#genderfluid
+marvel_genderfluid_first<-marvel%>%
+  filter(sex=="Genderfluid Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#aug 1949. neutral. there's only two of them, and the other doesn't appear until oct 2005 & is good.
+```
+#### DC
+```{r}
+#gsm
+dc_gsm_first<-dc_gsm%>%
+  select(name, align, gsm, first_appearance, year)%>%
+  arrange(year)
+#bisexual. nov 1943. bad. 
+#next appearance: was may 1959. homosexual. good.
+
+#sex
+dc_sex<-dc%>%
+group_by(sex) %>% 
+  summarise(
+    sex_count = n()
+  )
+#not male
+dc_nonmale_first<-dc%>%
+  filter(sex!="Male Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year) 
+#two female. feb 1936. good
+#next appearance:female. march 1937. good.
+
+#female
+dc_female_first<-dc%>%
+  filter(sex=="Female Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#two female. feb 1936. good
+#next appearance:female. march 1937. good.
+
+#genderless
+dc_genderless_first<-dc%>%
+  filter(sex=="Genderless Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#dec 1961. good
+#next appearance: feb 1974. bad.
+
+#transgender
+dc_transgender_first<-dc%>%
+  filter(sex=="Transgender Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#only one! oct 2009. bad
+
+```
+## Jenna
+
+Question 2: How often do gender or sexual minorities (i.e. homosexual characters) appear in the comics compared to majorities?
+
+This question is newsworthy because it speaks to the greater issue of representation of marginalized groups in media, in our case, comic books specifically. Comic books are consumed widely across all identities, but how do characters in these comics reflect their audience? I think reporting is being done at a large scale in the entertainment industry to show how there is a lack of representation for gender or sexual minorities, but other than the 538 story, I’ve seen nothing to address under representation in comics specifically. 
+#### Marvel
+```{r}
+#end result: count of total GSM & count of majority characters
+#for each data set, filter for GSM, count & reverse filter for GSM, count
+#also calculate percentage,  dig deeper to see different GSM breakdowns if we were to deem it newsworthy
+
+#gsm characters
+marvel_gsm<- marvel %>% 
+  filter(gsm != "none")
+
+marvel_gsm_breakdown<- marvel_gsm %>% 
+  group_by(gsm) %>% 
+  summarise(
+    gsm_count = n()
+  )
+#non_gsm characters
+marvel_non_gsm<- marvel %>% 
+  filter(gsm == "none")
+
+marvel_non_gsm_breakdown<- marvel_non_gsm %>% 
+  group_by(gsm) %>% 
+  summarise(
+    gsm_count = n()
+  )
+#total marvel characters for percentage purposes
+marvel_characters<- marvel %>% nrow()
+
+marvel_breakdown<- bind_rows(marvel_gsm_breakdown, marvel_non_gsm_breakdown) %>% 
+  mutate(
+    percent_in_universe = (gsm_count/marvel_characters)*100
+  )
+#marvel_gsm_count<- marvel_gsm %>% nrow()
+#marvel_non_gsm_count<- marvel_non_gsm %>% nrow()
+```
+#### DC
+```{r}
+#gsm characters
+dc_gsm<- dc %>% 
+  filter(gsm != "none")
+
+dc_gsm_breakdown<- dc_gsm %>% 
+  group_by(gsm) %>% 
+  summarise(
+    gsm_count = n()
+  )
+#non_gsm characters
+dc_non_gsm<- dc %>% 
+  filter(gsm == "none")
+
+dc_non_gsm_breakdown<- dc_non_gsm %>% 
+  group_by(gsm) %>% 
+  summarise(
+    gsm_count = n()
+  )
+#total marvel characters for percentage purposes
+dc_characters<- dc %>% nrow()
+
+dc_breakdown<- bind_rows(dc_gsm_breakdown, dc_non_gsm_breakdown) %>% 
+  mutate(
+    percent_in_universe = (gsm_count/dc_characters)*100
+  )
+#marvel_gsm_count<- marvel_gsm %>% nrow()
+#marvel_non_gsm_count<- marvel_non_gsm %>% nrow()
+```
+
+Question 3: Do minorities (women, GSM labeled characters, etc.) more often hold a public or secret identity?
+
+On the point of representation, it’s important to analyze how the representation is portrayed. Are minorities often made to hide? This question plays into the overall salience of minority representation in media we consume. I have not seen journalistic work address issues of public or secret identity in comics. 
+
+#### Marvel
+```{r}
+#need to filter for women & secret id, women & non secret id, gsm & secret id and non gsm secret id
+
+#for percentages
+marvel_women<- marvel %>% 
+  filter(sex == "Female Characters") %>% 
+  nrow()
+
+gsm_marvel<- marvel %>% 
+  filter(gsm != "none") %>% 
+  nrow()
+
+marvel_women_ids<- marvel %>% 
+  filter(sex == "Female Characters") %>% 
+  group_by(id) %>% 
+  summarise(
+    total_women = n()
+  ) %>% 
+  mutate(
+   percent_in_universe = (total_women/marvel_women)*100 
+  )
+
+#significant number of marvel women where id is na
+
+marvel_gsm_ids<- marvel %>% 
+  filter(gsm != "none") %>% 
+  group_by(id) %>% 
+  summarise(
+    total_gsm = n()
+  ) %>% 
+  mutate(
+   percent_in_universe = (total_gsm/gsm_marvel)*100 
+  )
+
+#in both cases, there are more characters with secret ids than public, but there are other factors that make this question less newsworthy
+```
+
+#### DC
+```{r}
+#need to filter for women & secret id, women & non secret id, gsm & secret id and non gsm secret id
+
+#for percentages
+dc_women<- dc %>% 
+  filter(sex == "Female Characters") %>% 
+  nrow()
+
+gsm_dc<- dc %>% 
+  filter(gsm != "none") %>% 
+  nrow()
+
+dc_women_ids<- dc %>% 
+  filter(sex == "Female Characters") %>% 
+  group_by(id) %>% 
+  summarise(
+    total_women = n()
+  ) %>% 
+  mutate(
+   percent_in_universe = (total_women/dc_women)*100 
+  )
+
+#more public than secret (though sig. amount of na)
+
+dc_gsm_ids<- dc %>% 
+  filter(gsm != "none") %>% 
+  group_by(id) %>% 
+  summarise(
+    total_gsm = n()
+  ) %>% 
+  mutate(
+   percent_in_universe = (total_gsm/gsm_dc)*100 
+  )
+
+#over 50% secret ids for dc gsm characters, however also a large number of na 
+```
+## Jamie
+
+Question 4: What does the number of appearances of the deceased characters look like? 
+
+The question is newsworthy because we can look into how many times a character is in a comic book until they are deceased and can also try and see what type of characters stay in the universe longer, and what type of characters die the most. 
+
+```{r}
+#analysis here
+#I will filter out the deceased characters and then arrange it with the times of appearance. And also look into the gender of these characters and what types of character (good, neutral or bad) and calculate the percentage. 
+#  
+
+```
+
+
+## Max
+
+Question 5: Are male or female characters more often to also be a GSM? If so, is there ever a noticeable trend shift in this representation throughout history, or does it always remain skewed?
+
+This question is a newsworthy question because it will be interesting to see how, over time, they show GSM characters broken down by gender. Do these trends reinforce/challenge existing stereotypes? This question plays into the theme of representation we’ve been looking at. I have not seen journalistic work address our question. 
+
+```{r}
+#analysis here
+
+```
+
+
+
