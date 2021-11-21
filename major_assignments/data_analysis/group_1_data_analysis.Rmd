@@ -38,7 +38,12 @@ library(refinr)
 #we'll add to these as we need other libs
 ```
 ## 250 word summary of findings thus far (for deliverable_03)
-The most interesting findings from question one is that among the marginalized identities that are in the comics so far, female characters in Marvel and DC appeared earlier than the other identities. They also align more Good/Neutral. The first Marvel agender character appears 25 years after the first female character. In general, Marvel agender characters align with bad two times more than they align with good. Lastly, DC has a 16-year gap between the first and second appearances of a not-straight character. The first appearances were a bisexual character who was bad, the next was a homosexual character who was good. For question two, the most interesting find was that 99.5% of all characters in the Marvel universe are straight. Only 90 characters in the Marvel universe are a gender/sexual minority. 99% of all characters in the DC universe are straight, with 64 characters being a gender/sexual minority. Question three is less newsworthy. There is a large NA category in all of the dataframes. Additionally, the README file provided by 538 doesn’t say what the NAs might represent. Regardless, in all but DC women, there are more characters that have secret identities than public identities among the characters that are in a marginalized group. 
+For question one, the most interesting find was that 99.5% of all characters in the Marvel universe are straight. Only 90 characters in the Marvel universe are a gender/sexual minority. 99% of all characters in the DC universe are straight, with 64 characters being a gender/sexual minority. 
+
+Question two is less newsworthy. There is a large NA category in all of the dataframes. Additionally, the README file provided by 538 doesn’t say what the NAs might represent. Regardless, in all but DC women, there are more characters that have secret identities than public identities among the characters that are in a marginalized group. 
+
+The most interesting findings from question three is that among the marginalized identities that are in the comics so far, female characters in Marvel and DC appeared earlier than the other identities. They also align more Good/Neutral. The first Marvel agender character appears 25 years after the first female character. In general, Marvel agender characters align with bad two times more than they align with good. Lastly, DC has a 16-year gap between the first and second appearances of a not-straight character. The first appearances were a bisexual character who was bad, the next was a homosexual character who was good. 
+
 
 ## Load and Cleaning Data
 Should probably mutate to add a column in each that says DC or marvel - then join? -Jenna
@@ -84,114 +89,9 @@ marvel<- marvel %>%
 
 
 ```
-
-
-## Taneen
-
-Question 1: When were the first characters that had a different identities (so people who were not straight cis white men) introduced into the universe for each of the companies; what were their identities, and were they good, bad, or neutral? 
-
-This question is newsworthy because these comic books led to the production of a lot of the highest grossing movies. They have such a big impact and wide audience that range from people who actually read the books to people who watch the movies based off of the books. I think it’s interesting to know when the books started considering other identities to represent within their content, and how they chose to represent them. I think more journalistic works have asked this question for gender, but only men/women and did not include other gender identities. I think there are also some works that have asked this for racial identities as well. 
-
-```{r}
-#analysis here
-#so my plan for this is to look at the data for each company separately. categories I’m going to look at are: align, sex, GSM, and first appearance. don’t have to exclude anything for gsm b/c that category shows if the character is a sexual minority, but for sex i will exclude male
-#i just realized that the data doesn’t have anything explicitly for race which is interesting
-```
-#### Marvel
-```{r}
-#gsm. i am wondering if i should look at when each category in the gsm was introduced too? like one for homosexuals, one for bisexual, one for pansexual etc etc 
-marvel_gsm_first<-marvel_gsm%>%
-  select(name, align, gsm, first_appearance, year)%>%
-  arrange(year)
-#homosexual. dec 1940. good. 
-#next appearance: homosexual. march 1943. NA. 
-#sex
-marvel_sex<-marvel%>%
-group_by(sex) %>% 
-  summarise(
-    sex_count = n()
-  )
-#not male
-marvel_nonmale_first<-marvel%>%
-  filter(sex!="Male Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year) 
-#two oct 1939. both female. one neutral one good.
-#next appearance: female. dec 1939. neutral.
-
-#female
-marvel_female_first<-marvel%>%
-  filter(sex=="Female Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year)
-#two oct 1939. one neutral one good.
-#next appearance: female. dec 1939. neutral.
-
-#agender
-marvel_agender_first<-marvel%>%
-  filter(sex=="Agender Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year)
-#jan 1964. neutral
-#next appearance: sep 1966. bad. doesn't have a good agender character until 1979 and immediately goes back to neutral/bad
-
-#genderfluid
-marvel_genderfluid_first<-marvel%>%
-  filter(sex=="Genderfluid Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year)
-#aug 1949. neutral. there's only two of them, and the other doesn't appear until oct 2005 & is good.
-```
-#### DC
-```{r}
-#gsm
-dc_gsm_first<-dc_gsm%>%
-  select(name, align, gsm, first_appearance, year)%>%
-  arrange(year)
-#bisexual. nov 1943. bad. 
-#next appearance: was may 1959. homosexual. good.
-
-#sex
-dc_sex<-dc%>%
-group_by(sex) %>% 
-  summarise(
-    sex_count = n()
-  )
-#not male
-dc_nonmale_first<-dc%>%
-  filter(sex!="Male Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year) 
-#two female. feb 1936. good
-#next appearance:female. march 1937. good.
-
-#female
-dc_female_first<-dc%>%
-  filter(sex=="Female Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year)
-#two female. feb 1936. good
-#next appearance:female. march 1937. good.
-
-#genderless
-dc_genderless_first<-dc%>%
-  filter(sex=="Genderless Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year)
-#dec 1961. good
-#next appearance: feb 1974. bad.
-
-#transgender
-dc_transgender_first<-dc%>%
-  filter(sex=="Transgender Characters")%>%
-  select(name, align, sex, first_appearance, year)%>%
-  arrange(year)
-#only one! oct 2009. bad
-
-```
 ## Jenna
 
-Question 2: How often do gender or sexual minorities (i.e. homosexual characters) appear in the comics compared to majorities?
+Question 1: How often do gender or sexual minorities (i.e. homosexual characters) appear in the comics compared to majorities?
 
 This question is newsworthy because it speaks to the greater issue of representation of marginalized groups in media, in our case, comic books specifically. Comic books are consumed widely across all identities, but how do characters in these comics reflect their audience? I think reporting is being done at a large scale in the entertainment industry to show how there is a lack of representation for gender or sexual minorities, but other than the 538 story, I’ve seen nothing to address under representation in comics specifically. 
 #### Marvel
@@ -259,7 +159,7 @@ dc_breakdown<- bind_rows(dc_gsm_breakdown, dc_non_gsm_breakdown) %>%
 #marvel_non_gsm_count<- marvel_non_gsm %>% nrow()
 ```
 
-Question 3: Do minorities (women, GSM labeled characters, etc.) more often hold a public or secret identity?
+Question 2: Do minorities (women, GSM labeled characters, etc.) more often hold a public or secret identity?
 
 On the point of representation, it’s important to analyze how the representation is portrayed. Are minorities often made to hide? This question plays into the overall salience of minority representation in media we consume. I have not seen journalistic work address issues of public or secret identity in comics. 
 
@@ -338,6 +238,111 @@ dc_gsm_ids<- dc %>%
 
 #over 50% secret ids for dc gsm characters, however also a large number of na 
 ```
+
+## Taneen
+
+Question 3: When were the first characters that had a different identities (so people who were not straight cis white men) introduced into the universe for each of the companies; what were their identities, and were they good, bad, or neutral? 
+
+This question is newsworthy because these comic books led to the production of a lot of the highest grossing movies. They have such a big impact and wide audience that range from people who actually read the books to people who watch the movies based off of the books. I think it’s interesting to know when the books started considering other identities to represent within their content, and how they chose to represent them. I think more journalistic works have asked this question for gender, but only men/women and did not include other gender identities. I think there are also some works that have asked this for racial identities as well. 
+
+```{r}
+#analysis here
+#so my plan for this is to look at the data for each company separately. categories I’m going to look at are: align, sex, GSM, and first appearance. don’t have to exclude anything for gsm b/c that category shows if the character is a sexual minority, but for sex i will exclude male
+#i just realized that the data doesn’t have anything explicitly for race which is interesting
+```
+#### Marvel
+```{r}
+#gsm. i am wondering if i should look at when each category in the gsm was introduced too? like one for homosexuals, one for bisexual, one for pansexual etc etc 
+marvel_gsm_first<-marvel_gsm%>%
+  select(name, align, gsm, first_appearance, year)%>%
+  arrange(year)
+#homosexual. dec 1940. good. 
+#next appearance: homosexual. march 1943. NA. 
+#sex
+marvel_sex<-marvel%>%
+group_by(sex) %>% 
+  summarise(
+    sex_count = n()
+  )
+#not male
+marvel_nonmale_first<-marvel%>%
+  filter(sex!="Male Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year) 
+#two oct 1939. both female. one neutral one good.
+#next appearance: female. dec 1939. neutral.
+
+#female
+marvel_female_first<-marvel%>%
+  filter(sex=="Female Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#two oct 1939. one neutral one good.
+#next appearance: female. dec 1939. neutral.
+
+#agender
+marvel_agender_first<-marvel%>%
+  filter(sex=="Agender Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#jan 1964. neutral
+#next appearance: sep 1966. bad. doesn't have a good agender character until 1979 and immediately goes back to neutral/bad
+
+#genderfluid
+marvel_genderfluid_first<-marvel%>%
+  filter(sex=="Genderfluid Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#aug 1949. neutral. there's only two of them, and the other doesn't appear until oct 2005 & is good.
+```
+#### DC
+```{r}
+#gsm
+dc_gsm_first<-dc_gsm%>%
+  select(name, align, gsm, first_appearance, year)%>%
+  arrange(year)
+#bisexual. nov 1943. bad. 
+#next appearance: was may 1959. homosexual. good.
+
+#sex
+dc_sex<-dc%>%
+group_by(sex) %>% 
+  summarise(
+    sex_count = n()
+  )
+#not male
+dc_nonmale_first<-dc%>%
+  filter(sex!="Male Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year) 
+#two females. feb 1936. good
+#next appearance:female. march 1937. good.
+
+#female
+dc_female_first<-dc%>%
+  filter(sex=="Female Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#two females. feb 1936. good
+#next appearance:female. march 1937. good.
+
+#genderless
+dc_genderless_first<-dc%>%
+  filter(sex=="Genderless Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#dec 1961. good
+#next appearance: feb 1974. bad.
+
+#transgender
+dc_transgender_first<-dc%>%
+  filter(sex=="Transgender Characters")%>%
+  select(name, align, sex, first_appearance, year)%>%
+  arrange(year)
+#only one! oct 2009. bad
+```
+
+
 ## Jamie
 
 Question 4: What does the number of appearances of the deceased characters look like? 
@@ -347,9 +352,27 @@ The question is newsworthy because we can look into how many times a character i
 ```{r}
 #analysis here
 #I will filter out the deceased characters and then arrange it with the times of appearance. And also look into the gender of these characters and what types of character (good, neutral or bad) and calculate the percentage. 
-#  
+```
+##DC
+```{r}
+dc_deceased<-dc%>%
+  filter(alive=="Deceased Characters")%>%
+  group_by(appearances)%>%
+  arrange(desc(appearances))
+
 
 ```
+
+##Marvel
+```{r}
+marvel_deceased<-dc%>%
+  filter(alive=="Deceased Characters")%>%
+  group_by(appearances)%>%
+  arrange(desc(appearances))
+
+
+```
+
 
 
 ## Max
@@ -362,6 +385,4 @@ This question is a newsworthy question because it will be interesting to see how
 #analysis here
 
 ```
-
-
 
